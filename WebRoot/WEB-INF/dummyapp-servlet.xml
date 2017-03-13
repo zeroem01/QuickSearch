@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="locations">
+    <list>
+ <!--       <value>file:/app/keys/dummyapp.properties</value>  -->
+        <value>file:dummyapp.properties</value>
+    </list>
+    </property>
+<!--    <property name="ignoreResourceNotFound" value="false"/> -->
+    <property name="ignoreResourceNotFound" value="true"/>
+</bean>
+
+<bean id="anonBindLdap" class="edu.cornell.cit.idm.datastore.DirectoryServer">
+<!--    <property name="ldapURL" value="${ldap.url}" /> -->
+    <property name="ldapURL" value="ldaps://testquery.directory.cornell.edu" />
+		
+    <property name="securityAuthentication" value="none" />
+</bean>
+
+<bean id="lookupController" class="dummyapp.LookupController">
+    <property name="sessionForm" value="false" />    
+    <property name="commandName" value="lFbo" />
+    <property name="commandClass" value="dummyapp.LookupFbo" />
+    <property name="validator" ref="lookupVal" />
+    <property name="formView" value="lookup" />
+</bean>
+
+<bean id="lookupVal" class="dummyapp.LookupVal"/>
+
+<bean id="displayController" class="dummyapp.DisplayController"> 
+    <property name="ldap" ref="anonBindLdap" />
+</bean>
+
+<bean id="exceptionResolver" class="dummyapp.ExceptionHandler">
+    <property name="errorView" value="exception"/>    
+</bean>
+    
+<!-- Special id known to ModelAndView in Spring, which can map JSPs to the prefix below -->
+<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+   <property name="prefix" value="/WEB-INF/jsp/" />
+   <property name="suffix" value=".jsp" />
+</bean>
+    
+<bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+    <property name="mappings">
+        <props>
+            <prop key="lookup.html">lookupController</prop>
+            <prop key="display.html">displayController</prop>
+        </props>
+    </property>
+</bean>
+
+</beans>
+

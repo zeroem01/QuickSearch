@@ -1,0 +1,108 @@
+<project name="quicksearch" basedir="." default="usage">
+
+<property name="build.number" value="0.0.1"/>
+<property name="app.name" value="Lookup LDAP Attributes" />
+<property name="app.base_url" value="/${ant.project.name}/" />
+<!-- ><property name="app.base_url" value="/" /> -->
+
+<tstamp>
+	<format property="start.time" pattern="MM/dd/yyyy hh:mm:ss aa" />
+</tstamp>
+
+<property name="webRoot" location="WebRoot"/>
+<property name="webinf" location="${webRoot}/WEB-INF"/>
+
+<property name="dist" location="dist/${ant.project.name}"/>
+<property name="dist.webinf" location="${dist}/WEB-INF"/>
+<property name="dist.classes" location="${dist}/WEB-INF/classes"/>
+<property name="dist.weblib" location="${dist}/WEB-INF/lib"/>
+
+<target name="usage">
+	<echo message="Available targets are:"/>
+	<echo message=""/>
+	<echo message="clean" />
+	<echo message="build" />
+	<echo message="dist  -propertyfile [file]"/>
+	<echo message="Be sure and specify a properties file, or no text substitution for you :)"/>
+</target>
+
+<filterset id="fs">
+    <filter token="APP_NAME" value="${app.name}"/>
+    <filter token="APP_VERSION" value="${build.number}"/>
+    <filter token="APP_BASEURL" value="${app.base_url}" />
+
+	<filter token="LOG4J_LEVEL" value="${log4j.level}"/>
+	<filter token="LOG4J_CONVERSION_PATTERN" value="${log4j.conversion.pattern}"/>
+	<filter token="LOG4J_FILE" value="${log4j.file}"/>
+</filterset>
+
+<path id="build.classpath">
+	<fileset dir="lib">
+		<include name="*.jar"/>
+	</fileset>
+</path>
+
+<target name="build">
+	<javac destdir="bin" debug="false" srcdir="src" includeantruntime="false">
+		<classpath refid="build.classpath"/>
+	</javac>
+</target>
+
+
+<target name="dist" depends="build">
+	<mkdir dir="${dist}"/>
+	<mkdir dir="${dist.classes}"/>
+	<mkdir dir="${dist.weblib}"/>
+	<mkdir dir="${dist.webinf}"/>
+
+	<!-- The classes are already compiled by Eclipse. Copy them to dist. -->
+	<copy todir="${dist.classes}" preservelastmodified="true" >
+		<fileset dir="bin">
+			<include name="**/*.class" />
+		</fileset>
+	</copy>
+	 
+	<!-- Move the jars -->
+	<copy todir="${dist.weblib}" preservelastmodified="true" flatten="true">
+		<fileset dir="lib">
+			<include name="**/*.jar"/>
+			<exclude name="servlet-api.jar"/>
+		</fileset>
+	</copy>
+
+    <!-- Big recursive copy under WebRoot. actually two copies, one for binaries (no filter) and one for text. 
+    the problem is that sometimes the filter corrupts the binaries. -->
+    <copy todir="${dist}" preservelastmodified="true">
+        <fileset dir="${webRoot}">
+            <include name="**/*.*"/>
+            <exclude name="**/*.jpg"/>
+            <exclude name="**/*.gif"/>
+            <exclude name="**/*.ico"/>
+        </fileset>
+        <filterset refid="fs" />
+    </copy>
+    <copy todir="${dist}" preservelastmodified="true">
+        <fileset dir="${webRoot}">
+            <include name="**/*.jpg"/>
+            <include name="**/*.gif"/>
+            <exclude name="**/*.ico"/>
+        </fileset>
+    </copy>
+
+	<war destfile="${dist}.war" webxml="${dist}/WEB-INF/web.xml">
+		<fileset dir="${dist}">
+			<include name="**/*.*"/>
+		</fileset>
+
+      <manifest>
+			<attribute name="Implementation-Title" value="${app.name}"/>
+			<attribute name="Implementation-Version" value="Version ${build.number}"/>
+      </manifest>
+	</war>
+</target>
+
+<target name="clean">
+	<delete dir="dist"/>
+</target>
+
+</project>

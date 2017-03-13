@@ -1,0 +1,43 @@
+
+/* from http://webaim.org/techniques/css/invisiblecontent/ */
+.hidden {
+    position:absolute;
+    left:-10000px;
+    top:auto;
+    width:1px;
+    height:1px;
+    overflow:hidden;
+}
+
+#identity { border-bottom: solid 5px #d7d6d1; }
+
+#identity h1 a {
+    border: none;
+    color: #73736c;
+}
+
+div.message-error, div.message-success {
+    width: 100%;
+    padding: 15px;
+    margin: 10px auto 20px auto;
+    background: #eee;
+    border: solid 1px #b31b1b;
+}
+
+div.message-error p, div.message-success p {
+    text-align: center;
+    font-weight: bold;
+    color: #b31b1b;
+    padding: 0;
+    margin: 0;
+}
+
+div.message-success { border-color: #338833; }
+div.message-success p { color: #338833; }
+
+span.note { color: #999; }
+
+p.form-error { font-size: 0.9em; color: #b31b1b; }
+
+#footer-content { font-size: 0.9em; }
+
